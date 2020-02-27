@@ -1,0 +1,310 @@
+---
+title: "STAT 385: Homework 02"
+author: "Ha Khanh Nguyen - Spring 2020, UIUC"
+date: 'Due: Friday, February 14, 11:59 PM'
+output: html_document
+
+---
+
+## Instructions
+
+- Maximum total number of points for this homework is 50.
+- Download the [R script template](hw02-your-name.R) and write your R code in this file for submission.
+- Rename the R script as `hw02-your-name.R`. For example, my R script file will be `hw02-ha-nguyen.R`.
+- Make sure to include your name in the R script file.
+- Submit the R script (`.R`) file to Compass by **11:59 PM on Friday, 02/14/2020**. You can submit as many times as needed up until the deadline. **The latest version submitted will be graded**.
+
+---
+
+## Exercise 1: French Roulette
+
+- Don't worry! You're on the right homework! This is Homework 02. We just really like playing roulette.
+
+```{r, out.width = "400px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("http://cdn-blog-assets.bigfishgames.com/uploads/2013/11/6-4-European-Roulette.png")
+```
+
+- A French roulette has:
+  - **37 colored and numbered pockets** on the wheel.
+  - 0 is <span style="color:green">green</span>.
+  - In number ranges from 1 to 10 and 19 to 28: 
+    - Odd numbers are <span style="color:red">red</span>.
+    - Even numbers are <span style="color:black">black</span>.
+  - In ranges from 11 to 18 and 29 to 36:
+    - Odd numbers are <span style="color:black">black</span>.
+    - Even numbers are <span style="color:red">red</span>.
+
+**TASKS**:
+
+- **(a)** (3 points) Read the data in `roulette.csv` file from the URL: https://nkha149.github.io/stat385-sp2020/files/data/roulette.csv and stores the data as a data frame named `wheel`.
+  - Your data frame should look like this if you correctly import the data:
+
+```{r}
+# import the data
+wheel <- read.csv('https://nkha149.github.io/stat385-sp2020/files/data/roulette.csv')
+```
+
+- **(b)** (12 points) Write an R function named `roulette()` that simulate a roulette, that is it has:
+  - **Input**: 2 arguments `bet` and `amount`
+    - `bet`: argument that takes one of the following options:
+      - `low`(1-18) or `high` (19-36): A bet that the number will be in the chosen range.
+      - `red` or `black`: A bet that the number will be the chosen color.
+      - `even` or `odd`: A bet that the number will be of the chosen type.
+      - `first` or `second` or `third`: A bet that the number will be in the chosen dozen: first (1-12), second (13-24), or third (25-36).
+      - any number from 0 to 36.
+    - `amount`: amount in dollars that you want to bet on. The default value for `amount` is `1`.
+  - **Output**:
+    - The amount of money you gain/lose after the bet.
+      - `-amount` if you lose the bet.
+      - The amount of money win is calculated following the table below.
+      - Make sure to include the `$` dollar sign.
+
+| Bet Name                      | Winning spaces                                                     | Payout  |
+| :---------------------------- | :----------------------------------------------------------------- | :------ |
+| Straight up (a single number) | Any single number                                                  | 36 to 1 |
+| Low (1 to 18)                 | 1, 2, 3, ..., 18                                                   | 1 to 1  |
+| High (19 to 36)               | 19, 20, 21, ..., 36                                                | 1 to 1  |
+| Red                           | 1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36  | 1 to 1  |
+| Black                         | 2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35 | 1 to 1  |
+| Odd                           | 1, 3, 5, ..., 35                                                   | 1 to 1  |
+| Even                          | 2, 4, 6, ..., 36                                                   | 1 to 1  |
+| 1st dozen                     | 1 through 12                                                       | 2 to 1  |
+| 2nd dozen                     | 13 through 24                                                      | 2 to 1  |
+| 3rd dozen                     | 25 through 36                                                      | 2 to 1  |
+
+  - Examples:
+    - Ha bets on `red` with $10. If she wins, her gain amount will be $10 (1 to 1 payout rate).
+    - Ha bets on `5` with $1. If she wins, her gain amount will be $36 (36 to 1 payout rate).
+    - Ha bets on `low` with $15. If she loses, her lose amount will be -$15. :(
+    
+```{r}
+# your function
+roulette <- function(bet, amount) {
+  if (missing(amount)) {
+    amount <- 1
+  }
+  correct <- sample(0:36, 1)
+  red <- c(1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36)
+  black <- c(2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35)
+  even <- c(2, 4, 6, 8, 10,12,14,16,18,20,22,24,26,28,30,32,34,36)
+  odd <- c(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33,35)
+  if (bet == correct) {
+    winning<-paste0("$",36*amount)
+    return(noquote(winning))
+  }
+  else if((bet == 'low') && (correct < 19)) {
+    winning<-paste0("$",amount)
+    return(noquote(winning))
+    } 
+  else if ((bet == 'high') && (correct > 18)) {
+    winning<-paste0("$",amount)
+    return(noquote(winning))
+  } 
+  else if((bet == 'red') && (correct %in% red)) {
+    winning<-paste0("$",amount)
+    return(noquote(winning))
+  } 
+  else if((bet == 'black') && (correct %in% black)) {
+    winning<-paste0("$",amount)
+    return(noquote(winning))
+  } 
+  else if((bet == 'odd') && (correct %in% odd)) {
+    winning<-paste0("$",amount)
+    return(noquote(winning))
+  } 
+  else if((bet == 'even') && (correct %in% even)) {
+    winning<-paste0("$",amount)
+    return(noquote(winning))
+  } 
+  else if((bet == 'first') && (correct %in% 1:12)) {
+    winning<-paste0("$",2*amount)
+    return(noquote(winning))
+  } 
+  else if((bet == 'second') && (correct %in% 13:24)) {
+    winning<-paste0("$",2*amount)
+    return(noquote(winning))
+  } 
+  else if((bet == 'third') && (correct %in% 25:36)) {
+    winning<-paste0("$",2*amount)
+    return(noquote(winning))
+  } 
+  else {
+    winning<-(paste0('-$', amount))
+    return(noquote(winning))
+  }
+}
+```
+
+- Use the following code to test your function. You should get the exact same outputs as shown.
+  - Remove `eval=FALSE` in each chunk.
+
+```{r}
+set.seed(385)
+roulette(bet = "red", amount = 10)
+```
+
+```{r}
+set.seed(385)
+roulette(bet = "first", amount = 15)
+```
+
+```{r}
+set.seed(385)
+roulette(bet = "odd", amount = 20)
+```
+
+```{r}
+set.seed(385)
+roulette(bet = 9, amount = 10)
+```
+
+```{r}
+set.seed(385)
+roulette(bet = 5)
+```
+
+---
+
+## Exercise 2: Simulations and Graphing
+
+- **(a)** (5 points) Modify function `roulette()` so that now it can only print out the amount of money lose/gain (e.g., 10, -10, 15, etc.) **without the dollar sign $**. Name this new function `roulette2()`.
+
+```{r}
+# your roulette2 function
+roulette2 <- function(bet, amount) {
+  if (missing(amount)) {
+    amount <- 1
+  }
+  correct <- sample(0:36, 1)
+  #correct <- 8
+  red <- c(1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36)
+  black <- c(2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35)
+  even <- c(2, 4, 6, 8, 10,12,14,16,18,20,22,24,26,28,30,32,34,36)
+  odd <- c(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33,35)
+  if (bet == correct) {
+    return(36*amount)
+  }
+  else if((bet == "low") && (correct < 19)) {
+    return(amount)
+  } else if ((bet == 'high') && (correct > 18)) {
+    return(amount)
+  } else if((bet == 'red') && (correct %in% red)) {
+    return(amount)
+  } else if((bet == 'black') && (correct %in% black)) {
+    return(amount)
+  } else if((bet == 'odd') && (correct %in% odd)) {
+    return(amount)
+  } else if((bet == 'even') && (correct %in% even)) {
+    return(amount)
+  } else if((bet == 'first') && (correct %in% 1:12)) {
+    return(2*amount)
+  } else if((bet == 'second') && (correct %in% 13:24)) {
+    return(2*amount)
+  } else if((bet == 'third') && (correct %in% 25:36)) {
+    return(2*amount)
+  }
+  else {
+    return(-amount)
+  }
+}
+```
+
+- Use the following code to test your function. You should get the exact same outputs as shown.
+  - Remove `eval=FALSE` in each chunk.
+
+```{r}
+set.seed(385)
+roulette2(bet = "red", amount = 10)
+```
+
+```{r}
+set.seed(385)
+roulette2(bet = "first", amount = 15)
+```
+
+```{r}
+set.seed(385)
+roulette2(bet = "odd", amount = 20)
+```
+
+```{r eval=FALSE}
+set.seed(385)
+roulette2(bet = 9, amount = 10)
+```
+
+```{r eval=FALSE}
+set.seed(385)
+roulette2(bet = 5)
+```
+
+- **(b)** (5 points) We want to estimate the **probability of winning if we keep betting on `red`**. To do that, we use simulation studies, that is running the `roulette2()` function many many times and record the number of times we win (not have a negative total amount at the end of the game). The number of simulations $n$ is 5000.
+  
+```{r}
+set.seed(385)
+i <- c(1:5000)
+count <- 0
+for(x in i) {
+  if (roulette2(bet = "red") > 0) {
+    count = count + 1
+  }
+}
+print(count/5000)
+```
+
+- **(c)** (5 points) Similarly, we want estimate the **probability of winning if we keep betting on the `first` dozen**. The number of simulations $n$ is 5000.
+
+```{r}
+set.seed(385)
+i <- c(1:5000)
+count <- 0
+for(x in i) {
+  if (roulette2(bet = "first") > 0) {
+    count = count + 1
+  }
+}
+```
+
+- **(d)** (5 points) Now, we want to estimate the **expected value of amount of money we will have by the end of the game if we bet on `odd` with $5**. In this example, the number of simulations is 7500.
+
+```{r}
+set.seed(385)
+i <- c(1:7500)
+count <- 0
+for(x in i) {
+  count = count + (roulette2(bet = "odd", 5))
+}
+print(count/7500)
+```
+
+## Exercise 3: Iris Flower Dataset
+
+- **(a)** (5 points) Plot the histogram of the `Sepal.Length` of all three types of the Iris flowers.
+
+```{r fig.align='center'}
+# plot histogram
+Sepal_Length <- iris[["Sepal.Length"]]
+hist(Sepal_Length)
+```
+
+
+- **(b)** (5 points) Plot a scatterplot of the `Sepal.Length` (x-axis) and the `Sepal.Width` (y-axis) of all three types of the Iris flowers.
+
+```{r, fig.align='center'}
+# plot scatterplot
+x <- iris[["Sepal.Length"]]
+y <- iris[["Sepal.Width"]]
+plot(x,y)
+```
+
+
+- **(c)** (5 points) Same as part (b) but now color the points depending on their `Species`. That is,
+  - If the flower is `setosa`, color of the point is `green` (or other color).
+  - If the flower is `versicolor`, the color of the point is `red` (or other color).
+  - If the flower is `virginica`, the color of the point is `blue` (or other color).
+
+- Your plot should look something like this:
+
+```{r, fig.align='center'}
+# plot scatterplot with colors
+plot(iris$Sepal.Length,iris$Sepal.Width, pch = 21, bg = c("red", "blue", "green"))
+```

@@ -1,0 +1,223 @@
+---
+title: "STAT 385: Homework 01"
+author: "Ha Khanh Nguyen - Spring 2020, UIUC"
+date: 'Due: Friday, February 7, 11:59 PM'
+output: html_document
+
+---
+
+## Instructions
+
+- Maximum total number of points for this homework is 35.
+- Download the [R script template](hw01-your-name.R) and write your R code in this file for submission.
+- Rename the R script as `hw01-your-name.R`. For example, my R script file will be `hw01-ha-nguyen.R`.
+- Make sure to include your name in the R script file.
+- Submit the R script (`.R`) file to Compass by **11:59 PM on Friday, 02/07/2020**. You can submit as many times as needed up until the deadline. **The lastest version submitted will be graded**.
+
+---
+
+## Exercise 1: French Roulette
+
+```{r, out.width = "400px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("http://cdn-blog-assets.bigfishgames.com/uploads/2013/11/6-4-European-Roulette.png")
+```
+
+- A French roulette has:
+  - **37 colored and numbered pockets** on the wheel.
+  - 0 is <span style="color:green">green</span>.
+  - In number ranges from 1 to 10 and 19 to 28: 
+    - Odd numbers are <span style="color:red">red</span>.
+    - Even numbers are <span style="color:black">black</span>.
+  - In ranges from 11 to 18 and 29 to 36:
+    - Odd numbers are <span style="color:black">black</span>.
+    - Even numbers are <span style="color:red">red</span>.
+
+**TASKS**:
+
+- **(a)** (5 points) Read the data in `roulette.csv` file from the URL: https://nkha149.github.io/stat385-sp2020/files/data/roulette.csv and stores the data as a data frame named `wheel`.
+  - Your data frame should look like this if you correctly import the data:
+
+```{r}
+# import the data here
+wheel <- read.csv(file = 'https://nkha149.github.io/stat385-sp2020/files/data/roulette.csv')
+```
+
+- **(b)** (5 points) Write an R function named `roulette()` that simulate a roulette, that is it has:
+  - **Input**:
+    - `bet`: argument that takes exactly 1 number from `0:36`.
+    - If no value is given for the argument, the **default value for `bet` is 14**.
+  - **Output**:
+    - Whether the input bet wins (`TRUE` or `FALSE`).
+  - Your function should print out the exact same output as shown when running the following code segment:
+  
+```{r}
+# write your function here
+roulette <- function(bet) {
+  if (missing(bet)) {
+    bet <- 14
+  }
+  correct <- sample(0:36, 1)
+  if (correct == bet) {
+    return (TRUE)
+  } else {
+    return (FALSE)
+  }
+}
+```
+
+  - After finish writing your function, remove the `eval=FALSE` option in the chunk below to test your function.
+
+```{r}
+set.seed(385)
+roulette(bet = 10)
+
+set.seed(385)
+roulette()
+
+set.seed(385)
+roulette(bet = 5)
+
+set.seed(420)
+roulette(bet = 4)
+
+set.seed(400)
+roulette(bet = 36)
+```
+
+---
+
+## Exercise 2: Number of Mortgage Payments
+
+Consider the following formula to calculate the number of mortgage payment terms:
+
+$$ n = \frac{ln \left( \frac{r}{\frac{m}{p} - r} + 1 \right)}{ln(1 + r)}$$
+
+In the above formula, $m$ represents the monthly payment amount, $p$ is the principle, and $r$ is the (monthly) interest rate.
+
+**TASK:** (5 points) Write an R function named `mortgage_num()` that calculates the number of mortgage payment terms using the above formula given $m$, $p$, and $r$.
+
+That is, the function `mortgage_num()` has:
+
+- **Input**:
+  - `m`: the monthly payment amount.
+  - `p`: the principle.
+  - `r`: the monthly interest rate.
+- **Output**:
+  - a **whole number** representing the number of mortgage payment terms calculated using the formula.
+  - **always** take the [ceiling of n](https://en.wikipedia.org/wiki/Floor_and_ceiling_functions), $\lceil n \rceil$ and print out the whole number as the function output.
+  - for example, using the formula with $m$ = 2000, $p$ = 200000, $r$ = 0.005, $n$ = 138.9757. We will round this up and return 139.
+- Your function should print out the exact same output as shown when running the following code segment:
+  
+```{r}
+# write your function here
+mortgage_num <- function(m,p,r) {
+  smallDenom <- (m/p) - r 
+  num <- log(r/(smallDenom)+1)
+  denom = log(1+r)
+  n <- ceiling(num/denom)
+  return (n)
+}
+```
+
+- Again, remove `eval=FALSE` in the chunk below to test your code:
+
+```{r eval}
+mortgage_num(m = 2000, p = 200000, r = 0.005)
+mortgage_num(m = 1800, p = 200000, r = 0.005)
+mortgage_num(m = 1500, p = 200000, r = 0.005)
+```
+
+---
+
+## Exercise 3: Iris Flower Dataset
+
+```{r, out.width = "600px", echo=FALSE, fig.align='center'}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Irises-Vincent_van_Gogh.jpg/785px-Irises-Vincent_van_Gogh.jpg")
+```
+
+
+The [Iris flower dataset](https://www.kaggle.com/arshid/iris-flower-dataset) is one of the most well-known datasets in the data science world. For this exercise, we will take a quick look at this famous dataset. The `iris` dataset has already been loaded to R as a data frame called `iris`.
+
+Type `iris` in your console window in RStudio to take a quick look at it.
+
+**TASKS**: (10 points)
+
+- **(a)** (1 point) Get the dimension (number of rows, number of columns) of the `iris` data frame.
+
+```{r}
+# dimensions of iris
+ncol(iris)
+nrow(iris)
+```
+
+- **(b)** (1 point) Print out the first 6 rows of `iris`.
+
+```{r}
+# first 6 rows of iris
+head(iris, n = 6)
+```
+
+
+- **(c)** (2 points) Compute the **average** of Sepal Length for Virginica Iris flowers only.
+
+```{r}
+# compute the average
+tab <- iris[iris$Species == 'virginica', ]
+mean(tab[["Sepal.Length"]])
+```
+
+- **(d)** (2 points) Similar to (c), we can also select only the Versicolor Iris flowers. Compute the **standard deviation** of the Petal Length for Versicolor Iris flowers only.
+
+```{r}
+# compute the standard deviation
+tab2 <- iris[iris$Species == 'versicolor', ] 
+sd(tab2[["Petal.Length"]])
+```
+
+- **(e)** (2 points) Compute the **median** of the Sepal Width for Setosa Iris flowers only.
+
+```{r}
+# compute the median
+tab3 <- iris[iris$Species == 'setosa', ] 
+median(tab3[["Sepal.Width"]])
+```
+
+- **(f)** (2 points) In this dataset, how many rows are Setosa Iris flowers?
+
+```{r}
+# number of rows that are Setosa Iris flowers
+nrow(tab3)
+```
+
+---
+
+## Exercise 4: Coronavirus
+
+The coronavirus has been on the news over the past weeks. We will take a look at the data on this newly discovered virus. This dataset was obtained from [Kaggle](https://www.kaggle.com/brendaso/2019-coronavirus-dataset-01212020-01262020). The dataset contains the coronavirus cases recorded up to 01/26/2020. The `Confirmed` column represents the **cummulative** number of cases confirmed at the that day and time. For example, up to 1/26/2020 11:00 AM, there are 40 confirmed cases in Shanghai, China.
+
+**TASKS**:
+
+- **(a)** (5 points) Read the data in `coronavirus-2020-01-26.csv` file from the URL: https://nkha149.github.io/stat385-sp2020/files/data/coronavirus-2020-01-26.csv and stores the data as a data frame named `coronavirus`.
+  - After loading the data, take a quick look at the dataset using the `str()` function.
+
+```{r echo=FALSE}
+coronavirus <- read.csv("https://nkha149.github.io/stat385-sp2020/files/data/coronavirus-2020-01-26.csv")
+str(coronavirus)
+```
+
+- To select only data for the United States, we can use the following command:
+
+```{r, eval=FALSE}
+coronavirus[coronavirus$Country == "United States", ]
+```
+
+- **(b)** (5 points) Follow the syntax in the code shown above, print out the lastest data on **confirmed** cases of the coronavirus.
+  - Those are the rows that have `Data.last.updated` equals to `1/26/2020 11:00 AM`.
+  - Only print out the following columns: `Province.State`, `Country`, `Date.last.updated`, and `Confirmed`.
+
+```{r}
+# filter data
+coron <- coronavirus[coronavirus$Date.last.updated == '1/26/2020 11:00 AM', 2:5] 
+str(coron)
+```
+

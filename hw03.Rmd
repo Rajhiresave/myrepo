@@ -1,0 +1,233 @@
+---
+title: "STAT 385: Homework 03"
+author: "Ha Khanh Nguyen - Spring 2020, UIUC"
+date: 'Due: Friday, February 21, 11:59 PM'
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    toc: true
+    
+---
+
+## Instructions
+
+- Maximum total number of points for this homework is 35.
+- Download the [R script template](hw03-your-name.R) and write your R code in this file for submission. h
+- Rename the R script as `hw03-your-name.R`. For example, my R script file will be `hw03-ha-nguyen.R`.
+- Make sure to include your name in the R script file.
+- Submit the R script (`.R`) file to Compass by **11:59 PM on Friday, 02/21/2020**. You can submit as many times as needed up until the deadline. **The latest version submitted will be graded**.
+
+---
+
+## Exercise 1: Vectorized Code
+
+For each part of this exercise, a function has been written for some specific purposes using loop. Your tasks are:
+  - To read/run the original function to understand what it does (the easiest way to do this is to run the function through an example by hand),
+  - Then write the **vectorize** the function.
+
+- **(a)** (5 points) Name your vectorized function `specific_sum_vec()`.
+
+```{r}
+specific_sum_loop <- function(m, pos) {
+  my_sum <- 0
+  for (i in 1:nrow(m)) {
+    for (j in pos) {
+      my_sum <- my_sum + m[i, j]
+    }
+  }
+  my_sum
+}
+```
+
+Running the function:
+
+```{r}
+m <- matrix(data = c(114:133), nrow = 4, byrow = TRUE)
+pos <- c(1, 4, 2)
+specific_sum_loop(m, pos)
+```
+
+```{r eval = FALSE}
+# write your specific_sum_vec() function
+specific_sum_vec <- function(m,pos) {
+  sum_col <- sum(m[,pos])
+  sum_col
+}
+m <- matrix(data = c(114:133), nrow = 4, byrow = TRUE)
+pos <- c(1,4,2)
+specific_sum_vec(m,pos)
+# test your code
+```
+
+- **(b)** (5 points) Name your vectorized function `long_name_vec()`.
+
+```{r}
+long_names_vec <- function(names) {
+  output <- c()
+  for (i in 1:length(names)) {
+    name <- names[i]
+    if (nchar(name) >= 8) {
+      output <- c(output, name)
+    }
+  }
+  output
+}
+```
+
+Running the function:
+
+```{r}
+my_names <- c("alexander", "david", "sebastian", "johnathan", "christopher", "ha",
+              "washington", "lincoln", "maximo", "mason", "luca", "anthony", "kevin")
+
+long_names_vec(names = my_names)
+```
+
+```{r eval = FALSE}
+# write your specific_sum_vec() function
+long_name_vec <- function(names) {
+  names[nchar(names) >= 6]
+  names
+}
+
+# test your code
+my_names <- c("alexander", "david", "sebastian", "johnathan", "christopher", "ha",
+              "washington", "lincoln", "maximo", "mason", "luca", "anthony", "kevin")
+
+long_name_vec(names = my_names)
+```
+
+
+- **(c)** (10 points) Name your vectorized function `roulette_vec()`.
+
+```{r}
+roulette_loop <- function(many_bets) {
+  
+  # randomly decide whether you lose or win on each bet
+  win_lose_random <- sample(x = c(TRUE, FALSE), size = length(many_bets),
+                            replace = TRUE)
+  
+  total_prize <- c()
+  
+  # for each bet
+  for (i in 1:length(many_bets)) {
+    bet <- many_bets[i]
+    prize <- 0
+    
+    # if we win, then check how much the prize is
+    if (win_lose_random[i]) {
+      if (bet == 'low') {
+        prize <- 10
+      } else if (bet == 'high'){
+        prize <- 10
+      } else if (bet == 'red') {
+        prize <- 20
+      } else if (bet == "black") {
+        prize <- 20
+      } else if (bet == "odd") {
+        prize <- 15
+      } else if (bet == "even") {
+        prize <- 15
+      } else if (bet == "first") {
+        prize <- 50
+      } else if (bet == "second") {
+        prize <- 50
+      } else if (bet == "third") {
+        prize <- 50
+      }
+    }
+  # add prize from this bet to the total prize
+  total_prize <- c(total_prize, prize)
+  }
+  
+  total_prize
+}
+```
+
+Running the function:
+
+```{r}
+set.seed(385)
+roulette_loop(many_bets = c("red"))
+roulette_loop(many_bets = c("red", "black", "low", "high"))
+```
+
+```{r}
+long_vec <- rep(c("red", "black", "low", "high", "second", "first", "third",
+                  "odd", "even"), 10000)
+system.time(roulette_loop(many_bets = long_vec))
+```
+
+- Is it taking forever to `knit` the file? If so, add `cache=TRUE` in the chunk above (that is one heavy chunk!)
+
+```{r eval=FALSE}
+# write your roulette_vec() function
+roulette_vec <- function(many_bets) {
+  win_lose_random <- sample(x=c(TRUE,FALSE), size = length(many_bets), replace = TRUE)
+
+  many_bets[many_bets == 'low'] <- 10
+  many_bets[many_bets == 'high'] <- 10
+  many_bets[many_bets == 'red'] <- 20
+  many_bets[many_bets == 'black'] <- 20
+  many_bets[many_bets == 'odd'] <- 15
+  many_bets[many_bets == 'even'] <- 15
+  many_bets[many_bets == 'first'] <- 50
+  many_bets[many_bets == 'second'] <- 50
+  many_bets[many_bets == 'third'] <- 50
+  
+  as.numeric(many_bets) * win_lose_random
+  
+  }
+# test your code
+set.seed(385)
+roulette_vec(many_bets = c("red"))
+roulette_vec(many_bets = c("red", "black", "low", "high"))
+```
+
+Make sure to check your function using the code segment above. Then, test whether your code is faster using the code segment below:
+
+```{r eval=FALSE}
+long_vec <- rep(c("red", "black", "low", "high", "second", "first", "third",
+                  "odd", "even"), 10000)
+system.time(roulette_vec(many_bets = long_vec))
+```
+
+***
+
+## Exercise 2: More Graphs!
+
+Let's learn to graph a few more things! You might need to Google a few things, but that's a part of this course. We learn how to learn coding (with minimal guidance)!
+
+- **(a)** (5 points) **Add a line at x = mean of `Sepal.Length`** to the following histogram
+
+```{r fig.align='center'}
+hist(x = iris$Sepal.Length, main = "Histogram of Sepal Length", xlab = "Sepal Length",
+     breaks = 15, border = "dodgerblue", probability = TRUE,
+     ylim = c(0, 0.65), xlim = c(4, 8.2))
+box()
+grid()
+```
+
+- **(b)** (5 points) Plot a **histogram of the eruption time** of the Old Faith Geyser using the `faithful` dataset, and **add a density estimate curve** to the plot.
+  - *Hint*: look up `density()`
+  - Use the following plot to check your answer.
+  
+```{r fig.align='center'}
+# Plot the histogram with the density estimate curve
+hist(x=faithful$eruptions, xlab = "Eruption Time (mins)", probability = TRUE, main = "Histogram of Old Faitful Geyers Eruption Time", breaks = 15, border = "dodgerblue")
+     lines(density(faithful$eruptions), col = 'orange')
+```
+
+- **(b)** (5 points) Find a way to plot the following plots as a 1x2 matrix (shown below):
+  - Histogram of waiting time from the `faithful` dataset.
+  - Scatterplot of `eruptions` vs. `waiting`.
+  
+```{r fig.align='center'}
+# plot the 2 plots
+par(mfrow = c(1,2)) 
+hist(x = faithful$waiting, xlab = "Waiting Time (mins)", probability = TRUE, main = "Histogram of Waiting Times", breaks = 15, border = "dodgerblue")
+plot(x= faithful$waiting, y = faithful$eruptions, col = "dodgerblue", pch = 19)
+
+```
+
+
